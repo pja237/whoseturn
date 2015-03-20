@@ -1,6 +1,6 @@
 
-create table if not exists main.users (id integer primary key asc autoincrement, name text, passwd text, points integer, calling integer);
-insert into main.users (name,passwd,points,calling) values ('Pero','pass',-2,0);
+create table if not exists main.users (id integer primary key asc autoincrement, name text, passwd text, points integer, calling integer, admin integer default 0);
+insert into main.users (name,passwd,points,calling,admin) values ('Pero','pass',-2,0,1);
 insert into main.users (name,passwd,points,calling) values ('Vedran','pass',-3,0);
 insert into main.users (name,passwd,points,calling) values ('Ivan','pass',0,0);
 insert into main.users (name,passwd,points,calling) values ('Rosa','pass',3,0);

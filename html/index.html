@@ -38,6 +38,7 @@
             <tr>
                 <td>Name</td>
                 <td>Points</td>
+                <td></td>
             </tr>
         </thead>
         <tbody>
@@ -53,6 +54,12 @@
             <td> {{ u[0] }} </td>
             <td> {{ u[1] }} </td>
         {% end %}
+            <td align="center">
+            {% if admin %}
+                <a href="/user/{{ u[0] }}/increment"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                <a href="/user/{{ u[0] }}/decrement"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>
+            {% end %}
+            </td>
         </tr>
     {% end %}
         </tbody>

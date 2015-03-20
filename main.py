@@ -21,9 +21,12 @@ class MainHandler(BaseHandler):
         calling_user=self.c.fetchall()
         self.c.execute('select * from dailyorders;')
         daily_orders=self.c.fetchall()
+        self.c.execute('select name from users where admin=1')
+        admins=c.fetchall()
+        admin=1 if (self.current_user,) in admins else 0
         self.c.execute('select placedorder.*, group_concat(orders.forwho) from placedorder inner join orders where placedorder.id=orders.orderid group by placedorder.id order by placedorder.id desc limit 5')
         last_5_orders=self.c.fetchall()
-        self.render("html/index.html", users=res, max_points=max_points, daily_orders=daily_orders, calling=calling_user, last_5_orders=last_5_orders)
+        self.render("html/index.html", users=res, max_points=max_points, daily_orders=daily_orders, calling=calling_user, last_5_orders=last_5_orders, admin=admin)
 
 class LogoutHandler(BaseHandler):
     def get(self):
@@ -79,6 +82,32 @@ class CallingHandler(BaseHandler):
         self.db.commit()
         self.redirect('/')
 
+class UserIncHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self,user):
+        self.c.execute('select name from users where admin=1')
+        admins=c.fetchall()
+        admin=1 if (self.current_user,) in admins else 0
+        if admin:
+            self.c.execute('update users set points=points+1 where name=?', (user,) )
+        else:
+            self.render('html/fuckoff.html')
+        self.db.commit()
+        self.redirect('/')
+
+class UserDecHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self,user):
+        self.c.execute('select name from users where admin=1')
+        admins=c.fetchall()
+        admin=1 if (self.current_user,) in admins else 0
+        if admin:
+            self.c.execute('update users set points=points-1 where name=?', (user,) )
+        else:
+            self.render('html/fuckoff.html')
+        self.db.commit()
+        self.redirect('/')
+
 class LoginHandler(BaseHandler):
     def get(self):
         if self.current_user:
@@ -118,6 +147,8 @@ if __name__ == "__main__":
         (r"/droporder", DropOrderHandler, params),
         (r"/placeorder", PlaceOrderHandler, params),
         (r"/logout", LogoutHandler, params),
+        (r"/user/(.*)/increment", UserIncHandler, params),
+        (r"/user/(.*)/decrement", UserDecHandler, params),
     ], **settings)
 
     application.listen(8888)
