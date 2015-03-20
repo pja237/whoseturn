@@ -2,6 +2,7 @@
 
 import tornado.ioloop
 import tornado.web
+import tornado.websocket
 import sqlite3
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -43,6 +44,7 @@ class ChoiceHandler(BaseHandler):
         if self.get_argument('3rd'):
             self.c.execute('insert into dailyorders (name,meal) values(?,?)', (self.current_user, self.get_argument('3rd')))
         self.db.commit()
+        ws_force_reload()
         self.redirect('/')
 
 class DropOrderHandler(BaseHandler):
@@ -50,6 +52,7 @@ class DropOrderHandler(BaseHandler):
     def get(self):
         self.c.execute('delete from dailyorders where name=?', (self.current_user,))
         self.db.commit()
+        ws_force_reload()
         self.redirect('/')
 
 class PlaceOrderHandler(BaseHandler):
@@ -73,6 +76,7 @@ class PlaceOrderHandler(BaseHandler):
                 self.c.execute('delete from dailyorders where name=?',(self.current_user,))
                 #self.c.execute('insert into orders (orderid,forwho) values (?,?)', (last_id, self.current_user) )
         self.db.commit()
+        ws_force_reload()
         self.redirect('/')
 
 class CallingHandler(BaseHandler):
@@ -80,6 +84,7 @@ class CallingHandler(BaseHandler):
     def get(self):
         self.c.execute('update users set calling=(case calling when 0 then 1 when 1 then 0 end) where name=?', (self.current_user,) )
         self.db.commit()
+        ws_force_reload()
         self.redirect('/')
 
 class UserIncHandler(BaseHandler):
@@ -93,6 +98,7 @@ class UserIncHandler(BaseHandler):
         else:
             self.render('html/fuckoff.html')
         self.db.commit()
+        ws_force_reload()
         self.redirect('/')
 
 class UserDecHandler(BaseHandler):
@@ -106,6 +112,7 @@ class UserDecHandler(BaseHandler):
         else:
             self.render('html/fuckoff.html')
         self.db.commit()
+        ws_force_reload()
         self.redirect('/')
 
 class LoginHandler(BaseHandler):
@@ -123,6 +130,29 @@ class LoginHandler(BaseHandler):
         else:
             self.redirect('/login')
         self.redirect("/")
+
+wsclients=[]
+
+def ws_force_reload():
+    for i in wsclients:
+        i.write_message('RELOAD')
+
+class WebSocket(tornado.websocket.WebSocketHandler):
+
+    def check_origin(self, origin):
+        return True
+
+    def open(self):
+        wsclients.append(self)
+        print "WS: add client"+str(self)
+        #self.write_message('Wellcome to websocket world!')
+
+    def on_close(self):
+        wsclients.remove(self)
+        print "WS: remove client"+str(self)
+
+    def on_message(self, message):
+        print "WS: recieved msg:"+message
 
 
 settings={ 
@@ -149,6 +179,7 @@ if __name__ == "__main__":
         (r"/logout", LogoutHandler, params),
         (r"/user/(.*)/increment", UserIncHandler, params),
         (r"/user/(.*)/decrement", UserDecHandler, params),
+        (r"/ws", WebSocket),
     ], **settings)
 
     application.listen(8888)
