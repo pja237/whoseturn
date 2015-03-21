@@ -21,6 +21,15 @@
   <div class="container-fluid">
     <h1>Whose turn?</h1>
 
+<div class="row">
+    <div class="alert alert-info" role="alert">
+        <p id="ws_notification">
+            Notification board
+        </p>
+    </div>
+</div>
+
+
 <!-- ********************************************************************************  -->
 <div class="row">
     <div class="col-md-4">
@@ -41,7 +50,7 @@
                 <td></td>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="main_list">
     {% for u in users %}
         <tr>
         {% if  filter(lambda i: u[0]==i[0], calling) %}
@@ -78,7 +87,7 @@
             <td>Meals</td>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="order_list">
 
     {% if filter(lambda i: current_user==i[0] , calling) %}
     <form action="/placeorder" method="POST">
@@ -169,7 +178,7 @@ Help the caller by filling out your meal-choices:
                 <th>For</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="hist_list">
 {% for i in last_5_orders %}
                 <tr>
                 <th scope="row">{{ i[0] }}</th>
