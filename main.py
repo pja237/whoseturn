@@ -149,16 +149,24 @@ def ws_force_reload():
         i.write_message('RELOAD')
 
 class WebSocket(tornado.websocket.WebSocketHandler):
+    def get_current_user(self):
+        return self.get_secure_cookie("user")
 
     def check_origin(self, origin):
         return True
 
     def open(self):
+        if not self.get_secure_cookie("user"):
+            print "ANON connected to ws, not allowed for pushes"
+            return None
         wsclients.append(self)
         print "WS: add client"+str(self)
         #self.write_message('Wellcome to websocket world!')
 
     def on_close(self):
+        if not self.get_secure_cookie("user"):
+            print "ANON closing down ws, that's fine"
+            return None
         wsclients.remove(self)
         print "WS: remove client"+str(self)
 
