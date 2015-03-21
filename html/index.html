@@ -189,17 +189,7 @@ Help the caller by filling out your meal-choices:
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="static/js/bootstrap.min.js"></script>
-    <script language="javascript" type="text/javascript">
-
-    var ws = new WebSocket("ws://192.168.56.207:8888/ws");
-    ws.onopen = function() {
-            ws.send("Hello, world");
-    };
-    ws.onmessage = function (evt) {
-            location.reload();
-    };
-
-    </script>
+    <script language="javascript" type="text/javascript" src="static/ws_reload.js"></script>
 
     </div>
   </body>

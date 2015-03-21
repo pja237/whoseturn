@@ -6,7 +6,7 @@ import tornado.websocket
 import sqlite3
 
 class BaseHandler(tornado.web.RequestHandler):
-    def initialize(self, database, cursor):
+    def initialize(self, database=None, cursor=None):
         self.db=database
         self.c=cursor
 
@@ -95,6 +95,12 @@ class UserIncHandler(BaseHandler):
         admin=1 if (self.current_user,) in admins else 0
         if admin:
             self.c.execute('update users set points=points+1 where name=?', (user,) )
+            # adding log trace
+            self.c.execute('insert into placedorder (who,timestamp) values (?,datetime())', (self.current_user,))
+            self.c.execute('select last_insert_rowid()')
+            last_id=c.fetchone()[0]
+            self.c.execute('insert into orders (orderid,forwho) values (?,?)', (last_id, user+" : admin +1") )
+
         else:
             self.render('html/fuckoff.html')
         self.db.commit()
@@ -109,6 +115,11 @@ class UserDecHandler(BaseHandler):
         admin=1 if (self.current_user,) in admins else 0
         if admin:
             self.c.execute('update users set points=points-1 where name=?', (user,) )
+            # adding log trace
+            self.c.execute('insert into placedorder (who,timestamp) values (?,datetime())', (self.current_user,))
+            self.c.execute('select last_insert_rowid()')
+            last_id=c.fetchone()[0]
+            self.c.execute('insert into orders (orderid,forwho) values (?,?)', (last_id, user+" : admin -1") )
         else:
             self.render('html/fuckoff.html')
         self.db.commit()
