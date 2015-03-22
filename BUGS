@@ -1,0 +1,6 @@
+* 47a04c7 
+-
+#1
+Person in 'Calling' mode doesn't render order updates correctly, table gets messed up when someone else places an order.
+Fix it.
+-

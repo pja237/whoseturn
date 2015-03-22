@@ -17,18 +17,14 @@ function refresh_hist(data) {
 
 function refresh_orders(data,calling) {
     $('#order_list').empty();
-    //alert('NEW ORDERS');
 
     var row='';
-    console.log(' f: '+data+' '+calling);
-    if(calling==1) {
-        row+='<form action="/placeorder" method="POST">';
-    }
     for(var i in data) {
-        row+='<tr>'
+        row+='<tr>';
         if(calling==1) {
             // add input box
             row+='<td><input type="checkbox" name="orderfor" value="'+i+'"></td>';
+            console.log(' 2 : '+row);
         }
         else {
             row+='<td></td>';
@@ -38,7 +34,7 @@ function refresh_orders(data,calling) {
         for(var j=0; j<data[i].length; j++) {
             row+='<td>'+data[i][j]+'</td>';
         }
-        row+='</tr>'
+        row+='</tr>';
         $('#order_list').append(row);
         row='';
     }
