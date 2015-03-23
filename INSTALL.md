@@ -12,6 +12,7 @@ pkg install py27-pip
 pkg install nginx  
 
 **Tornado framework & webserver**
+
 pip install tornado
 
 I might have forgotten some lesser packages, but pkg will tell you what else you might need to add. Then add those as well. :)
@@ -19,7 +20,8 @@ I might have forgotten some lesser packages, but pkg will tell you what else you
 #### Configuration
 
 OPTIONAL: Edit ./initdb.sql3 and populate/change default usernames/passwords/admin status fields. Or run with defaults.
-OPTIONAL: Create new DB: sqlite -init ./initdb.sql3 wt.db 
+
+**Create new DB: sqlite -init ./initdb.sql3 wt.db**
 
 Edit /usr/local/etc/nginx/nginx.conf and add the following line to default location {}:
 
