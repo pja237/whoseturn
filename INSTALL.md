@@ -5,11 +5,13 @@
 
 ### FreeBSD
 
-**Python 2.7, pip, nginx**
+**Python 2.7, pip, sqlite3, nginx**
 
 pkg install python27  
 pkg install py27-pip  
 pkg install nginx  
+pkg install sqlite3  
+
 
 **Tornado framework & webserver**
 
