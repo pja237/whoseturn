@@ -7,9 +7,9 @@
 
 **Python 2.7, pip, nginx**
 
-pkg install python27
-pkg install py27-pip
-pkg install nginx
+pkg install python27  
+pkg install py27-pip  
+pkg install nginx  
 
 **Tornado framework & webserver**
 pip install tornado
