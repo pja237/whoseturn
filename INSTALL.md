@@ -27,16 +27,16 @@ OPTIONAL: Edit ./initdb.sql3 and populate/change default usernames/passwords/adm
 
 Edit /usr/local/etc/nginx/nginx.conf and add the following line to default location {}:
 
-'''
+```
         location / {
                     proxy_pass http://localhost:8888;
-'''
+```  
 
 Edit ./whoseturn/html/bootstrap/ws_reload.js and change the address with the ip/fqdn of your machine:
 
-'''
+```
 var ws = new WebSocket("ws://192.168.56.207:8888/ws");
-'''
+```
 
 #### Run
 
