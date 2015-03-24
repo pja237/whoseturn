@@ -12,4 +12,8 @@ create table if not exists main.dailyorders (name text, meal text);
 create table if not exists main.placedorder (id integer primary key asc autoincrement, who text, timestamp text);
 create table if not exists main.orders (orderid integer, forwho text, foreign key(orderid) references placedorder(id));
 
+create table if not exists main.restaurants (id integer primary key asc autoincrement, name text, phone text, web text);
+insert into main.restaurants (name, phone, web) values ("Restaurant Kvatric","091 33 55 310", "http://restoran-kvatric.hr/");
+insert into main.restaurants (name, phone, web) values ("Kulinarijat","01 48 80 209", "http://www.kulinarijat.hr/");
+
 .read passwords.sql3

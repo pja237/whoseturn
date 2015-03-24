@@ -23,7 +23,7 @@ I might have forgotten some lesser packages, but pkg will tell you what else you
 
 OPTIONAL: Edit ./initdb.sql3 and populate/change default usernames/passwords/admin status fields. Or run with defaults.
 
-OPTIONAL: Recreate DB: sqlite -init ./initdb.sql3 wt.db  
+**Recreate DB: sqlite -init ./initdb.sql3 wt.db**
 
 **Default usernames are in the list, password is 'pass' (without '')**
 

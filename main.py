@@ -135,6 +135,7 @@ class UserIncHandler(BaseHandler):
 
         else:
             self.render('html/fuckoff.html')
+            return
         self.db.commit()
         ws_bcast_msg('REFRESH_MAIN', self.wt_get_main_table(), self.current_user)
         ws_bcast_msg('REFRESH_HIST', self.wt_get_hist_table(), self.current_user)
@@ -155,6 +156,7 @@ class UserDecHandler(BaseHandler):
             self.c.execute('insert into orders (orderid,forwho) values (?,?)', (last_id, user+" : admin -1") )
         else:
             self.render('html/fuckoff.html')
+            return
         self.db.commit()
         ws_bcast_msg('REFRESH_MAIN', self.wt_get_main_table(), self.current_user)
         ws_bcast_msg('REFRESH_HIST', self.wt_get_hist_table(), self.current_user)
@@ -164,6 +166,7 @@ class LoginHandler(BaseHandler):
     def get(self):
         if self.current_user:
             self.redirect('/')
+            return
         self.render("html/login.html")
 
     def post(self):
@@ -180,18 +183,34 @@ class LoginHandler(BaseHandler):
             self.set_secure_cookie("user", self.get_argument("name"))
         else:
             self.redirect('/login')
+            return
         self.redirect("/")
 
 class ChangePassHandler(BaseHandler):
     @tornado.web.authenticated
+    def get(self):
+        self.render('html/password.html')
+
+    @tornado.web.authenticated
     def post(self):
-        #if not self.get_argument('old_pass'):
-        #    self.redirect('/')
-        if not self.get_argument('new_pass'):
+        if not self.get_argument('old_pass') or not self.get_argument('new_pass'):
+            self.redirect('/changepass')
+            return
+
+        o_pass=self.get_argument('old_pass')
+        n_pass=self.get_argument('new_pass')
+
+        self.c.execute('select salt,passwd from users where name=?', (self.current_user, ) )
+        db_data=c.fetchone()
+        (db_salt,db_pass)=db_data
+        if db_pass!=hashlib.sha512(db_salt+o_pass).hexdigest():
+            # OLD PASS DOESN'T MATCH, WE HAVE A POTENTIAL CASE OF MESNATA, ABORT AND LOG OUT!
+            self.clear_cookie('user')
             self.redirect('/')
+            return
 
         new_salt=uuid.uuid4().hex
-        new_pass=hashlib.sha512(new_salt+new_pass).hexdigest()
+        new_pass=hashlib.sha512(new_salt+n_pass).hexdigest()
         self.c.execute('update users set salt=? where name=?', (new_salt, self.current_user))
         self.c.execute('update users set passwd=? where name=?', (new_pass, self.current_user))
         self.db.commit()
@@ -269,6 +288,7 @@ if __name__ == "__main__":
         (r"/user/(.*)/increment", UserIncHandler, params),
         (r"/user/(.*)/decrement", UserDecHandler, params),
         (r"/main_list", MainListHandler, params),
+        (r"/changepass", ChangePassHandler, params),
         (r"/ws", WebSocket, params),
     ], **settings)
 
