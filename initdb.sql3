@@ -1,13 +1,15 @@
 
-create table if not exists main.users (id integer primary key asc autoincrement, name text, passwd text, points integer, calling integer, admin integer default 0);
-insert into main.users (name,passwd,points,calling,admin) values ('Pero','pass',-2,0,1);
-insert into main.users (name,passwd,points,calling) values ('Vedran','pass',-3,0);
-insert into main.users (name,passwd,points,calling) values ('Ivan','pass',0,0);
-insert into main.users (name,passwd,points,calling) values ('Rosa','pass',3,0);
-insert into main.users (name,passwd,points,calling) values ('Masa','pass',3,0);
-insert into main.users (name,passwd,points,calling) values ('Kristian','pass',-1,0);
+create table if not exists main.users (id integer primary key asc autoincrement, name text, passwd text, salt text, points integer default 0, calling integer default 0, admin integer default 0);
+insert into main.users (name,admin) values ('Pero',1);
+insert into main.users (name) values ('Vedran');
+insert into main.users (name) values ('Ivan');
+insert into main.users (name) values ('Rosa');
+insert into main.users (name) values ('Masa');
+insert into main.users (name) values ('Kristian');
 
 create table if not exists main.dailyorders (name text, meal text);
 
 create table if not exists main.placedorder (id integer primary key asc autoincrement, who text, timestamp text);
 create table if not exists main.orders (orderid integer, forwho text, foreign key(orderid) references placedorder(id));
+
+.read passwords.sql3

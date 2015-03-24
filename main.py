@@ -5,6 +5,8 @@ import tornado.web
 import tornado.websocket
 import sqlite3
 import re
+import uuid
+import hashlib
 
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self, database=None, cursor=None):
@@ -73,6 +75,7 @@ class ChoiceHandler(BaseHandler):
         self.db.commit()
         ws_bcast_msg('REFRESH_ORDERS', self.wt_get_order_table(), self.current_user)
         self.redirect('/')
+
 
 class DropOrderHandler(BaseHandler):
     @tornado.web.authenticated
@@ -165,13 +168,34 @@ class LoginHandler(BaseHandler):
 
     def post(self):
         name=re.sub('[^\w\ ]', '', str(self.get_argument('name')))
-        passwd=re.sub('[^\w\ ]', '', str(self.get_argument('passwd')))
-        self.c.execute('select * from users where name=? and passwd=?', (name, passwd) )
-        if self.c.fetchall():
+        passwd=str(self.get_argument('passwd'))
+        self.c.execute('select salt,passwd from users where name=?', (name, ) )
+        db_data=c.fetchone()
+        if db_data:
+            (db_salt,db_pass)=db_data
+        else:
+            self.redirect('/login')
+        if db_pass==hashlib.sha512(db_salt+passwd).hexdigest():
+            # OK, password MATCHES
             self.set_secure_cookie("user", self.get_argument("name"))
         else:
             self.redirect('/login')
         self.redirect("/")
+
+class ChangePassHandler(BaseHandler):
+    @tornado.web.authenticated
+    def post(self):
+        #if not self.get_argument('old_pass'):
+        #    self.redirect('/')
+        if not self.get_argument('new_pass'):
+            self.redirect('/')
+
+        new_salt=uuid.uuid4().hex
+        new_pass=hashlib.sha512(new_salt+new_pass).hexdigest()
+        self.c.execute('update users set salt=? where name=?', (new_salt, self.current_user))
+        self.c.execute('update users set passwd=? where name=?', (new_pass, self.current_user))
+        self.db.commit()
+        self.redirect('/')
 
 wsclients=[]
 

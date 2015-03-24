@@ -16,4 +16,4 @@ I've used this real-life situation as a little project to learn/experiment with 
 
 How to install/configure is written in INSTALL.md file.
 
-## STANDARD WARNING: this is a demo-exercise code. A whole ecosystem of dangerous bugs contained within.
+### STANDARD WARNING: this is a demo-exercise code. A whole ecosystem of dangerous bugs might be contained within.
