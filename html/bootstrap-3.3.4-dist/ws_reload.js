@@ -1,3 +1,6 @@
+$( ".meals" ).click(function() {
+  $(this).toggleClass('bg-primary');
+});
 
 function refresh_hist(data) {
     $('#hist_list').empty();
@@ -32,7 +35,7 @@ function refresh_orders(data,calling) {
         // user
         row+='<td>'+i+'</td>';
         for(var j=0; j<data[i].length; j++) {
-            row+='<td>'+data[i][j]+'</td>';
+            row+='<td class="meals">'+data[i][j]+'</td>';
         }
         row+='</tr>';
         $('#order_list').append(row);

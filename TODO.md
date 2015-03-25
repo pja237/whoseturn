@@ -1,5 +1,6 @@
 - [x] time to do things proper way, change passwords in db from plaintext to salt+hash
 - [x] add change password option
+- [x] orders table: onclick <td> change field color to something else, to make keeping track of orders placed easier
 - [ ] add onerror()|readyState detection if the ws connection broke on the client side, alert the user asking to refresh page
 - [ ] who is online list
 - [ ] voting system for choosing where to order from

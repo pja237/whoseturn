@@ -111,7 +111,7 @@
             </td>
             <td>{{ u }}</td>
         {% for m in map(lambda k: k[1], filter(lambda j: j[0]==u,daily_orders)) %}
-            <td>{{ m }}</td>
+            <td class="meals">{{ m }}</td>
         {% end %}
         </tr>
     {% end %}
