@@ -29,7 +29,6 @@
     </div>
 </div>
 
-
 <!-- ********************************************************************************  -->
 <div class="row">
     <div class="col-md-4">
@@ -80,6 +79,27 @@
 <!-- *********************** ORDERS TABLE *******************************************  -->
 
     <div class="col-md-4">
+
+<!-- SELECTED RESTAURANT -->
+{% if current_user %}
+        <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+            Select restaurant<span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+                <li><a href="/place/None/select">None</a></li>
+            {% for p in places %}
+                <li><a href="/place/{{ p[0] }}/select">{{ p[1] }}</a></li>
+            {% end %}
+        </ul>
+        </div>
+        <div class="alert alert-success" role="alert" id="selected_place">
+        {% if sel_place %}
+            {{ sel_place[1] }} <strong> {{ sel_place[2] }} </strong> <a href="{{ sel_place[3] }}" target="_blank">Open website</a>
+        {% end %}
+        </div>
+{% end %}
+<!-- SELECTED RESTAURANT -->
 
 {% if current_user %}
     {% if filter(lambda i: current_user==i[0] , calling) %}

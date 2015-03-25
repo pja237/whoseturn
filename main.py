@@ -34,6 +34,11 @@ class BaseHandler(tornado.web.RequestHandler):
         ret={x:map(lambda i: i[1], filter(lambda i: i[0]==x, data)) for x in set(map(lambda i: i[0], data))}
         return ret
 
+    def wt_get_selected_place(self):
+        c.execute('select name,phone,web from restaurants where selected=1;')
+        data=c.fetchone()
+        return data
+
 class MainListHandler(BaseHandler):
     def get(self):
         self.c.execute('select name, points, calling from users;')
@@ -43,19 +48,29 @@ class MainListHandler(BaseHandler):
 
 class MainHandler(BaseHandler):
     def get(self):
+        # main table
         self.c.execute('select name, points from users;')
         res=sorted(self.c.fetchall(), key=lambda i: i[1] , reverse=True)
         max_points=max(map(lambda i: i[1], res))
+        # calling users
         self.c.execute('select name from users where calling=1;')
         calling_user=self.c.fetchall()
+        # daily orders
         self.c.execute('select * from dailyorders;')
         daily_orders=self.c.fetchall()
+        # admin state
         self.c.execute('select name from users where admin=1')
         admins=c.fetchall()
         admin=1 if (self.current_user,) in admins else 0
         self.admin=1 if (self.current_user,) in admins else 0
+        # places
+        self.c.execute('select id,name,phone,web from restaurants')
+        places=c.fetchall()
+        self.c.execute('select id,name,phone,web from restaurants where selected=1')
+        sel_place=c.fetchone()
+        # can't remember why i do this :D
         self.wt_get_order_table()
-        self.render("html/index.html", users=res, max_points=max_points, daily_orders=daily_orders, calling=calling_user, last_5_orders=self.wt_get_hist_table(), admin=admin)
+        self.render("html/index.html", sel_place=sel_place, places=places, users=res, max_points=max_points, daily_orders=daily_orders, calling=calling_user, last_5_orders=self.wt_get_hist_table(), admin=admin)
 
 class LogoutHandler(BaseHandler):
     def get(self):
@@ -102,6 +117,7 @@ class PlaceOrderHandler(BaseHandler):
             self.c.execute('update users set points=points-? where name=?', (len(for_who), self.current_user) )
 
         self.c.execute('update users set calling=(case calling when 0 then 1 when 1 then 0 end) where name=?',(self.current_user,))
+        self.c.execute('update restaurants set selected=0')
         if self.current_user in tmp:
                 self.c.execute('delete from dailyorders where name=?',(self.current_user,))
                 #self.c.execute('insert into orders (orderid,forwho) values (?,?)', (last_id, self.current_user) )
@@ -109,6 +125,7 @@ class PlaceOrderHandler(BaseHandler):
         ws_bcast_msg('REFRESH_MAIN', self.wt_get_main_table(), self.current_user)
         ws_bcast_msg('REFRESH_ORDERS', self.wt_get_order_table(), self.current_user)
         ws_bcast_msg('REFRESH_HIST', self.wt_get_hist_table(), self.current_user)
+        ws_bcast_msg('REFRESH_PLACE', self.wt_get_selected_place(), self.current_user)
         self.redirect('/')
 
 class CallingHandler(BaseHandler):
@@ -216,6 +233,21 @@ class ChangePassHandler(BaseHandler):
         self.db.commit()
         self.redirect('/')
 
+class PlaceSelHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self, place):
+        place=re.sub('[^\w\ ]', '', place)
+        if place=="None":
+            self.c.execute('update restaurants set selected=0')
+            self.db.commit()
+        else:    
+            self.c.execute('update restaurants set selected=1 where id=?', (place,) )
+            self.db.commit()
+            self.c.execute('update restaurants set selected=0 where id!=?', (place,) )
+            self.db.commit()
+        ws_bcast_msg('REFRESH_PLACE', self.wt_get_selected_place(), self.current_user)
+        self.redirect('/')
+
 wsclients=[]
 
 def ws_bcast_msg(msg,data,who):
@@ -287,6 +319,7 @@ if __name__ == "__main__":
         (r"/logout", LogoutHandler, params),
         (r"/user/(.*)/increment", UserIncHandler, params),
         (r"/user/(.*)/decrement", UserDecHandler, params),
+        (r"/place/(.*)/select", PlaceSelHandler, params),
         (r"/main_list", MainListHandler, params),
         (r"/changepass", ChangePassHandler, params),
         (r"/ws", WebSocket, params),

@@ -2,6 +2,14 @@ $( ".meals" ).click(function() {
   $(this).toggleClass('bg-primary');
 });
 
+
+function refresh_place(data) {
+    $('#selected_place').empty();
+    if(data) {
+        $('#selected_place').append(data[0]+' <strong> '+data[1]+' </strong><a href="'+data[2]+'" target="_blank">Open website</a>');
+    }
+}
+
 function refresh_hist(data) {
     $('#hist_list').empty();
 
@@ -99,7 +107,7 @@ ws.onmessage = function (evt) {
     console.log('POST PARSE adm: '+obj.adm);
     console.log('POST PARSE data: '+obj.data);
     console.log('POST PARSE data stringify: '+JSON.stringify(obj.data));
-    document.getElementById('ws_notification').innerHTML='AHA! SOMETHING HAPPENED! <strong> '+obj.who+' </strong> did something!';
+    document.getElementById('ws_notification').innerHTML='<strong> '+obj.who+' </strong> did something!';
     if(obj.oid=='REFRESH_MAIN') {
         refresh_main(obj.adm, obj.data);
     }
@@ -108,6 +116,9 @@ ws.onmessage = function (evt) {
     }
     else if(obj.oid=='REFRESH_ORDERS') {
         refresh_orders(obj.data, obj.calling);
+    }
+    else if(obj.oid=='REFRESH_PLACE') {
+        refresh_place(obj.data);
     }
 };
 
